@@ -1,0 +1,18 @@
+# Create separate checker dirs
+mkdir checker-part-3
+cp -r checker/checker-part-3/* checker-part-3/
+
+# Copy student src/
+cp -r part-3/* checker-part-3/
+
+# Check part 3
+printf "\nChecking part 3...\n"
+cd checker-part-3
+timeout 300 octave-cli checker_part_3.m 2>\dev\null || (printf "Timeout; 0 puncte\n"; echo "0" > results)
+cd ..
+
+# Get total score
+cd checker-part-3; score3=$(cat results); cd ..
+
+# Remove dirs
+rm -rf checker-part-3

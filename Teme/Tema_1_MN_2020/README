@@ -1,0 +1,407 @@
+# Iancu Alexandru-Gabriel 314CD
+
+I. Sparse Jacobi(Task 1)
+
+A.generate_probabilities_system
+
+	Aflu numarul de elemente din labirint folosindu-ma de formula lui Gauss.
+1 + 2 + 3 + ... + n = n(n + 1)/2
+
+	Prima linie este un caz special, dar cum are doar un nod si va fi aceeasi
+pentru fiecare labirint este de preferat sa o hardcodez.
+
+	Voi completa doar o jumatate triunghiulara(diagonala inclusiv) pentru ca
+matricea este simetrica. O voi transpune peste ea la final.
+
+	Introduc direct elementele in matrice, matricea are o ordine si anume
+pe pozitiile diagonale se afla numarul de legaturi ale nodului, iar pe
+celelalte se va pune -1 pe linia elementului si coloana nodului de care se 
+leaga. M-am decis sa introduc -1 doar pentru nodurile mai mari decat nodul
+curent, restul se transpun la final.
+
+1.Mijlocul piramidei
+
+	Pentru fiecare linie de la mijlocul piramidei voi calcula initial numarul
+de elemente de la inceputul piramidei pana la finalul liniei folosindu-ma de
+Gauss(salvat in nr). Salvez la fiecare iteratie nr_prev, adica numarul de
+elemente de la inceputul piramidei pana la finalul liniei precedente, adica
+fix ultimul element inainte sa inceapa linia curenta.
+	
+	a)Parcurg fiecare element al liniei fara extremitatea dreapta care are caz
+special folosindu-ma de nr_prev si nr. nr_prev + 1 va fi extremitatea stanga
+a liniei si nr - 1 va fi nodul precedent extremitatii drepte.
+
+	Elementele din mijloc vor fi mereu conectate la 6 noduri, astfel voi seta
+in matrice pe pozitia A(element, element) valoarea 6. Introduc -1 pentru
+elementele mai mari de care se leaga: elementul imediat urmator, elementul
+ce se afla un rand mai jos si elementul urmator acestuia.
+
+	Cum am ales sa introduc doar legaturile cu nodurile mai mari, extremitatea
+stanga respecta ordinea in acest sens cu restul nodurilor de la mijloc, insa
+aceasta are doar 5 legaturi(una cu exteriorul), asa ca o setez la 5 dupa for.
+
+	b)Extremitatea dreapta are tot 5 legaturi, setez in valoarea 5 pe pozitia
+element,element. Singura diferenta fata de restul nodurilor de pe aceeasi linie
+este ca el nu mai are un nod imediat urmator.
+
+2.Ultimul rand al piramidei
+
+	a)Parcurg asemanator cu mijlocul piramidei, diferenta este ca nu mai are
+legaturi mai jos asa ca singura legatura va fi nodul imediat urmator, asa ca pe
+langa faptul ca introduc mai putini '-1', pe pozitia diagonala a acestuia voi
+introduce 5, pentru ca are doar 5 legaturi. Cum se afla pe ultima linie, se 
+leaga de pasajul catre mancare asa ca pe pozitia nodului in vectorul b(vectorul 
+de solutii) voi introduce 1.
+	
+	Extremitatea stanga are doar 4 legaturi cu noduri(1 exterioara, 1 mancare).
+
+	b)Extremitatea dreapta este cel mai mare nod asa ca nu are noduri mai mari
+decat el. Voi introduce '1' in vectorul de solutii si pe pozitia diagonala 4,
+pentru ca are doar 4 legaturi.
+
+B.matrix_to_csr
+
+	Parcurg matricea, sar peste elementele nenule. Daca gasesc un element nenul,
+atunci cresc nz(numarul de elemente nenule).
+
+	Daca elementul nenul este primul element nenul din linie ii introduc
+index-ul salvat in nz pe pozitia liniei, adaug un 0 pentru linia urmatoare.
+
+	Adaug in values valoare elementului nenul si in colind pozitia pe coloana a
+acestuia.
+
+	Cand se termina parcurgerea rowptr va avea un 0 in plus la final unde voi
+introduce numarul total de elemente nenule.
+
+C.Jacobi_factorization
+
+	Il scriu pe A ca N - P => A = D - (-L - U), unde D este diagonala principala
+si L si U sunt cele doua jumatati triunghiulare. => N = D si P = -(L + U).
+
+	Aflu inversa lui N(nu e nicio problema legata de cost pentru ca este o
+matrice diagonala). Apoi matricea de iteratie Jacobi va fi Inv(N)*P, iar
+vectorul de iteratie Jacobi va fi Inv(N)*b.
+
+D.Jacobi_sparse
+
+	Cat timp eroarea este mai mare decat toleranta voi calcula x-ul ca produs
+intre matricea de iteratie si x-ul anterior adunat cu vectorul de iteratie,
+calculez eroarea drept distanta de la x-ul curent la x-ul precedent si x-ul
+precedent devine x-ul curent.
+
+	Cum la parametrii am matricea de iteratie in format csr ma folosesc de
+functia auxiliara csr_multiplication care inmulteste o matrice in format csr
+cu un vector.
+
+3.Transpunerea
+
+	Adaug la matrice transpusa sa minus diagonala principala.
+
+II.K-Means(Task 2)
+
+A.clustering_pc
+
+	Incep prin alocarea de spatiu pentru centroids si centroids_prev relativ la
+dimensiunea punctelor.
+
+1.Initializare.
+	Folosesc functia mean pentru a face media pe coloane a
+elementelor care respecta conditia de initializare. Astfel cu un for calculez
+fiecare centroid i ca fiind media punctelor care incep la pozitia i si se
+termina la numarul de puncte(rows), avand un pas de NC.
+
+2.Matricea de clusters. 
+	Este de forma (CLUSTER_1 CLUSTER_2 ... CLUSTER_NC), unde 
+fiecare matrice de tip CLUSTER are numarul de coloane egal cu dimensiunea
+punctelor => matricea de clusters o sa aiba c*NC coloane. Ii ofer fiecarui
+cluster r/NC randuri initializand-o ca si cum fiecare cluster e uniform relativ
+la celelalte clustere, dar cum unele clustere o sa aiba mai multe elemente decat
+altele, o sa se adauge randuri noi pentru toate clusterele cand va fi nevoie.
+
+	Matricea de clusters are r/NC + 1 randuri pentru ca prima linie o voi folosi
+drept metadata, unde stochez numarul de puncte din cluster dupa cum urmeaza
+in exemplul de mai jos:
+
+3.00000   0.00000   0.00000   1.00000   0.00000   0.00000
+0.30510   0.46218   0.63262   0.91865   0.89136   0.77591
+0.24563   0.38148   0.56866   0.00000   0.00000   0.00000
+0.22198   0.51580   0.33712   0.00000   0.00000   0.00000
+
+	In matricea de clustere avem 2 clustere de dimensiune 3 si max 3 puncte.
+Numarul de coloane al cluster-ului este egal cu dimensiunea => primele 3 coloane 
+sunt primul cluster, urmatoarele 3 sunt al doilea.
+
+	Dupa cum se poate observa, in prima linie in extremitatea stanga-sus a 
+fiecarui cluster se afla un numar care reprezinta numarul de elemente din 
+cluster, restul de coloane sunt initializate 0 si raman 0.
+
+3. Calcularea normelor punctelor relativ la centroizi.
+	Pentru fiecare centroid calculez vectorizat diferenta dintre coordonatele
+punctele si coordonatele centroidului. Primul pas in calcularea distantei
+euclediene.
+	
+	Apoi calculez norma diferentelor de coordonate ce imi va da practic distanta
+de la fiecare punct la fiecare centroid. Pentru centroid-ul i voi ocupa coloana 
+i din matricea norms(de distante euclidiene) pentru fiecare punct => numar
+de linii = numar de puncte.
+
+	Pentru a calcula norma coordonatelor fiecarui punct ma voi folosi de vecnorm
+care calculeaza norma pentru fiecare coloana dintr-o matrice. Astfel voi calcula
+norma TRANSPUSEI pentru a afla norma pe fiecare linie (fiecare linie din diff
+avand diferenta dintre coordonatele punctelor si cele ale centroizilor), apoi
+transpun rezultatul pentru al pune drept coloana in norms la coloana
+corespondenta centroidului(de la 1 la NC).
+	UPDATE: n-am mai folosit vecnorm pentru vmchecker-ul ruleaza pe 4.2.2,
+versiune ce nu are vecnorm. Asa ca am calculat de mana norma exact pe acelasi
+principiu ca la vecnorm.
+
+4. Folosirea distantei euclidiene pentru aflarea centroid-ului cel mai apropiat.
+	Matricea norms are pe fiecare linie distanta euclidiana de la fiecare punct
+la fiecare centroid. Astfel linia 1 reprezinta distanta de la punctul 1 la
+fiecare centroid, unde index-ul coloanei distantei euclidiene reprezinta
+index-ul centroidului.
+	
+	Folosind functia min care calculeaza minim-ul pe coloane, voi afla minim-ul
+pe linie introducand transpusa matricei de norme/distante euclidiene. Dar nu ma
+intereseaza valoarea propriu-zisa, ci doar index-ul centroidului cel mai
+apropiat. Daca se mai introduce o variabila de out la functia min, aceasta
+va contine indexii pe linie al elementelor minime din matrice. Cum calculez
+transpusa voi afla de fapt indexii minim pe coloana din matrice, adica implicit
+index-ul centroid-ului catre care punctul are distanta cea mai mica.
+
+5. Introducerea elementelor in cluster in functie de cel mai apropiat centroid.
+	Ma folosesc de indexii minim calculati anterior pentru a pune punctul in
+cluster-ul caruia ii corespunde. Linia este in care fac acest lucru nu este
+atat de usor de inteles asa ca o sa o explic pe bucati.
+
+a)++clusters(1, 1 + m*c) + 1
+
+clusters(1, 1 + m*c) este pozitia metadata-ul clusterului explicat la 2 ce
+contine numarul de elemente din cluster. Initializat cu 0 pentru ca in stadiu
+initial cluster-ul nu are elemente. Astfel cresc acest numar pentru cluster-ul
+in care il introduc, numarul cluster-ului este dat de m. Faptul ca nu am
+folosit direct min_distance_index(j) este pentru ca are numarul variabilei prea
+lung si din cauza modului in care e structurata matricea. Astfel pentru
+centroid-ul 1, metadata-ul va fi pozitionat pe linia 1 in coloana 1 + (1-1)*c =
+1, pentru centroid-ul 2 in coloana c+1 samd.
+
+	Adaug +1 pentru ca prima linia este deja ocupata de metadata.
+
+b)1 + m*c : (m + 1)*c 
+
+1 + m*c este pozitia primei coordonate pentru fiecare punct din cluster si
+(m + 1)*c este pozitia ultimei coordonate. Pentru cenntroid-ul 1 avem
+coloanele 1 + (1-1)*c : (1-1+1)*c care este echivalent cu coloanele 1 : c,
+pentru exemplul de la 2 ar fi coloanele 1-3, pentru centroid-ul 2 ar fi 4-6 samd
+
+c)points(j, :) punctul cu toate coordonatele ce va fi adaugat
+
+6. Recalculez centroizii in functie de noile puncte din clustere.
+
+	Daca centroid-ul are doar un element, atunci va fi egal cu acesta.
+
+	Altfel recalculez fiecare centroid in functie de noile puncte. Metodologia
+pentru coloane si randuri este asemanatoare cu cea de la 5. Doar ca de data asta
+in loc de m este i.
+
+B.compute_cost_pc
+
+	Este cod reciclat de la compute_cost_pc. Calcularea distantei euclidiene
+se face exact cum este precizat in clustering_pc la pasul 3(din README).
+
+	De aceasta data nu mai ma folosesc de indexii minimi, ci ma folosesc de
+valoarea minima(referinta la clustering_pc pasul 4). Insumez valorile minime si 
+astfel aflu costul minim.
+
+III. Householder prediction(Task 3)
+
+A. rgbHistogram
+
+1. Initializare
+	Imread imi va oferi ca output la o imagine o matrice tridimensionala care
+va contine in fiecare dintre cele 3 matrici valorile R, G, respectiv B pentru
+fiecare pixel corespondent pozitiei din matrice.
+
+2. Vectori auxiliari(pt count_bins = 20)
+	z va contine numerele de la 1 la 19, iar b-ul va contine a 20-a parte
+din 256 pe fiecare pozitie.
+
+3. Calcularea intervalului
+	Inmultesc a 20-a partea din 256 cu 1 ... 19 sa formez bucatile de interval.
+Cand il inmultesc cu 1 voi avea capatul primului interval, cu 2 va fi urmatorul
+capat de interval si cu 19 va fi penultimul capat de interval. Ultimul capat
+de interval este 255. 
+
+	Adaug inceputul primului interval care este 0. Adaug inceputul ultimului 
+interval care este 255 + 1. Problema cu histc este ca face un interval separat 
+care contine doar numarul de elemente ce sunt egale cu ultimul capat de 
+interval. Pentru ca ultimul meu interval sa il contina pe 255, voi face 
+capatul de interval 256.
+
+4. Calcularea propriu-zisa a histogramei
+	Pentru fiecare caracteristica a pixelului(R, G, B) reprezentata de matricea
+img(:, :, 1), img(:, :, 2), respectiv img(:, :, 3) voi calcula numarul de
+pixeli ce au acea caracteristica in intervalele specificate cu histc. Cum histc
+calculeaza pentru un interval in plus(256 - 256), voi scapa de el luand doar
+primele count_bins intervale in considerare.
+
+	Histc calculeaza numarul de pixeli prezenti pentru fiecare coloana, asa
+ca adun bincounts-ul pe linii si apoi il adaug in solutie. Pozitionez
+in solutie corespunzator numarului iteratiei.
+
+B. hsvHistogram
+
+1. R', G', B'
+	Impart toate elementele din matricea tridimensionala la 255 pentru a face
+rost de R', G' si B'. Dar nu fac asta inainte sa o castez la double pentru ca
+zecimalele sa ramana.
+
+2. Cmax, Cmin si delta
+	Fac maximul si minimul intre caracteristici doua cate doua. Intai R' cu G',
+apoi rezultatul anterior cu B'.
+
+	Matricea delta(D) se calculeaza foarte simplu pentru ca scaderea dintre
+matrici se vectorizeaza direct.
+
+3. Calcularea H(nuanta)
+	Construiesc matricea H plina de zero-uri => nu mai introduc pentru cazul
+delta == 0.
+
+	Construiesc matricea separat pentru fiecare caz in parte. Ma folosesc de
+si-ul logic(binar) pentru a putea forma o matrice in care sunt 1 pe pozitiile
+in care in ambele matrici conditonale se afla 1 pentru ca nu vreau sa mai 
+schimb pozitiile in care Cmax este egal cu R, G sau B, dar D este egal cu 0.
+
+	Vectorizez ecuatiile date in tema pentru un pixel pentru fiecare caz in
+parte. Ma folosesc de functia build-in mod() sa vectorizez restul impartirii.
+Pentru impartire(div) ma folosesc de "." sa impart fiecare element din numarator
+la numitorul respectiv.
+
+4. Calculare S(saturatie) si V(valoare)
+	Saturatia unde maximul este 0 va fi 0, iar in restul cazurilor se face
+impartirea vectorizata corespondenta ecuatiei pentru un pixel. Valoarea ia
+pur si simplu valorile din Cmax.	
+
+5. Calculare histograma HSV
+	Prin modul de calculare al H, S, V de mai sus se normeaza implicit toate 
+caracteristicile asa ca toate vor avea valori in intervalul [0, 1]. Acelasi
+principiu ca la RGB. Inceputul primului interval e 0, iar capatul ultimului
+interval este 1 + 1e-2(pentru ca intervalul [0, 1] contine valori de 1e-2 mai
+mici ca [0, 255]). N-am mai parcurs cu un for pentru ca nu le mai aveam stocate
+intr-o matrice tridimensionala asa ca le-am luat separat(calculate la fel ca
+histogramele rgb).
+
+C. SST
+	Am folosit algoritmul pentru matrici patratice. Cum matricile in cazul
+nostru au mai multe linii decat coloane, o sa fie linii de zero-uri redundante
+la final, daca scapam de aceste linii vom avea o matrice patratica de
+nr_coloane_matrice x nr_coloane_matrice.
+
+D. Householder
+	Cum o sa fie mereu mai multe linii decat coloane, atunci va trebui ca mereu
+sa parcurg toate coloanele. Calculez vectorii si matricile Householder la
+fiecare iteratie. Inmultesc la stanga lui A sa aflu R si la dreapta matricii
+identitate sa aflu Q.
+
+E. Preprocess
+	Salvez folderele din path-ul dat ca parametru intr-un vector. Scap de
+referintele la directorul curent si trecut(. si ..), scap si de fisierul
+_DS_STORE. Salvez numarul de foldere gasite si le parcurg.
+
+	La fiecare iteratie de folder, salvez intr-un vector toate fisierele si
+intr-o variabila numarul de fisiere. Scap de referintele la directorul curent
+si trecut. Cum imaginile sunt salvate drept numere, presupun ca orice alt fisier 
+prezent va fi format din litere si se va afla la finalul folder-ului. Parcurg 
+folderul de la final pentru a scapa de _DS_STORE, results si orice alt fisier 
+care nu este o imagine. La parcugere adaug 4 litere la inceput, pentru ca
+fisierul sa aiba cel putin 4 litere => nu da out of bound la end - 3.
+
+	Verific daca sunt in folderul cu pisici in functie de numele directorului.
+Daca directorul se numeste "cats" inseamna ca e cel cu pisici si vectorul y
+va avea pe pozitiile corespunzatoare folder-ului 1, altfel nu e director-ul cu
+pisici si pun -1.
+
+	Pentru fiecare poza din folder-ul curent voi verifica tip-ul histogramei
+din parametru(sa stiu daca am nevoie de vector de caracteristici HSV sau RGB).
+Adaug vectorul de caracteristici al imaginii in matricea cu caracteristici pe
+pozitia corespunzatoare(a n-a pozitia din cele destinate folder-ului curent,
+tin cont prin iter cate imagini au fost prelucrate in folderele anterioare).
+
+F. Learn
+	Adaug coloana bias(cea plina cu 1) matricii de caracteristici. Factorizez
+matricea in Q si R. Rezolv ecuatia X * w = y in urmatorul mod:
+	1) scriu pe X in functie de Q si R: Q * R * w = y'
+	2) inmultesc la stanga cu transpusa lui Q: R * w = Q' * y'
+	3) Rescriu pe Q' * y drept un nou y: R * w = y
+	4) R e superior triunghiulara => aplic SST sa aflu w
+
+G. Evaluate
+	Parcurgerea de directoare si de fisiere e identica cu preprocess.
+
+	La parcugerea fiecarei imaginii din folder-ul curent testez tipul de
+histograma, calculez vectorul de caracteristici corespunzator imaginii. Pun pe
+pozitia 3 * count_bins + 1 elementul bias de valoare 1(w este de lungime
+3 * count_bins + 1). Prezic eticheta(pisica sau non-pisica) imaginii
+inmultind transpusa vectorului de invatare la stanga vectorului de
+caracteristici in format coloana.
+
+	Daca eticheta este mai mare sau egala decat 0 inseamna ca ar trebui sa fie
+pisica, altfel n-ar trebui sa fie pisica. Am etichetat deja corespunzator
+fiecare imagine si voi testa acuratetea vectorului de invatare: daca eticheta
+nou calculata corepunde etichetei stiute atunci s-a prezis bine si cresc
+numarul de imagini prezise bine(numar stocat in accuracy). 
+
+	La final calculez procentul impartind numarul de imagini prezise corect la
+numarul total de imagini prelucrate.
+
+IV. Gradient Descent Prediction(Task 4)
+
+	Functiile preprocess, rgbHistogram si hsvHistogram sunt cele de la task-ul
+3.
+	
+A. Learn
+	Valoarea initiala a lui w este formata din numere random intre -0.1 si 0.1.
+Fiecare valoare e calculata dupa formula 0.2 * rand() - 0.1, unde 0.2 * rand()
+produce o valoare intre 0 si 0.2. Scazand 0.1 se ajunge la intervalul -0.1-0.1.
+
+	Scalez coloanele vectorizat. Functiile mean() si std() fac mean-ul si std-ul
+pe coloane. Pentru a imparti fiecare element din numarator la numitor ma
+folosesc de "./". Adaug coloana bias.
+
+	Pentru fiecare "epoch" voi lua 64 de linii alese aleatoriu. Pentru asta
+creez un vector de indexi ce contine 64 de indexi random intre 1 si numarul de
+linii, il castez la intreg. Creez apoi matricea de caracteristici si vectorul
+de etichete al batch-ului curent folosindu-ma de cei 64 de indexi calculati.
+
+	Singurul lucru care necesita cu adevarat explicatii e modul prin care am
+calculat w intreg vectorizat. 
+	1) Xb * w - rezulta un vector ce contine toate elementele sumei
+Xb(j, :) * w in format coloana.
+	2) scad in format coloana(transpun y) etichetele batch-ului, de unde va
+rezulta tot un vector de aceleasi dimensiune ce va contine toate elementele
+sumei Xb(j, :) * w - yb(j) in format coloana.
+	3) inmultesc transpusa acestui vector coloana(linie) cu Xb pentru a forma
+direct suma prin produs scalar(fiecare element al sumei calculate anterior se
+va inmulti cu corespondentul liniei pe care o reprezinta din Xb), astfel se
+va face produs scalar dintre vectorul suma format la 2) cu fiecare coloana din
+Xb. Acest rezultat este suma din pseudocod formata pentru orice i(coloana) prin
+produs scalar linie(suma din paranteza) si coloana. Rezulta un vector linie.
+	4) w intreg se va afla scazand din vectorul w intreg anterior suma calculata
+pentru oricare i inmultita cu rata de invatare supra numarul de imagini(numarul
+de linii din matricea de caracteristici).
+
+B. Evaluate
+	Aflu matricea de caracteristici si etichetele imaginilor folosindu-ma de
+functia preprocess de la task-ul 3. Nu rescriu ca la functia evaluate de la
+householder prediction pentru ca oricum trebuie intai sa formez matricea de
+caracteristici pentru a o scala. Dupa ce o scalez exact ca la functia learn,
+voi adauga coloana bias. 
+
+	Pentru fiecare imagine(totalul de imagini e reprezentat de numarul de linii 
+din matricea de caracteristici) calculez eticheta prezisa si verific daca
+s-a prezis bine sau nu. Cod reciclat de la learn-ul facut la task-ul 3.
+
+
+PRECIZARE: Algoritmul SST este realizat dupa cel facut la ora de laborator pentru
+matrici patratice. Algoritmii Jacobi si Householder sunt inspirati din explicatiile
+de laborator ale lui Radu-Dumitru STOCHIȚOIU.

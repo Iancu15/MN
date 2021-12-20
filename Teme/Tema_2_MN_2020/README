@@ -1,0 +1,164 @@
+# Iancu Alexandru-Gabriel 314CD
+
+1. CalculM
+	Este functia pe care am folosit-o pentru citirea matricei de adiacenta A si
+a matricei diagonale K din fisier. Returneaza matricea M rezultata care este
+(K^-1 * A)'.
+
+	Citesc din fisierul dat ca parametru numarul de noduri ce se afla pe prima
+linie. Apoi pentru fiecare nod voi parcurge linia care o reprezinta in fisier.
+Primul element din linie este el insusi, nu o sa-l citesc pentru ca oricum
+stiu al catalea nod e datorita contorului. Urmatorul element va reprezenta
+numarul de vecini prezentati in linie. Citesc acest element si il introduc pe
+pozitia corespunzatoare in matricea diagonala K ce retine numarul de link-uri
+de la nodul curent la alte pagini(outdegrees in graf).
+
+	Parcurg fiecare vecin din lista si daca cumva este fix nodul curent(link
+la sine insusi) scad numarul de link-uri de pe pozitia curespunzatoare din K
+pentru ca astfel de link-uri dilueaza statistica pe care o vom folosi pentru
+a oferi rank-uri paginilor. Introduc pe pozitia A(i, j) valoarea 1 care imi
+spune ca este un link de la i la j.
+
+	Termin iteratiile si astfel am facut rost de matricea A si matricea K. Stim
+ca matricea M se poate calcula matriceal conform ecuatiei M = (K^-1 * A)'.
+Putem calcula inversa pentru matricea K pentru ca e diagonala si astfel se
+calculeaza rapid.
+
+2. Iterative
+	Am calculat M-ul folosind functia CalculM descrisa anterior. Creez vectorul
+coloana PR(R) si introduc peste tot valoarea 1/N(N = numar de noduri) creand
+astfel vectorul pentru timpul t = 0.
+
+	Cat timp distanta dintre vectorul R la timpul t si vectorul R la timpul 
+(t - 1) este mai mare decat eroarea:
+	a) salvez vectorul la timpul t
+	b) creez vectorul la timpul (t + 1) conform formulei:
+
+	R(t + 1) = d * M * R + 	((1 - d) / N) * 1v, unde N este numarul de noduri
+si 1v un vector coloana plin de 1 creat cu functia built-in ones().
+
+	Am observat ca metoda iterativa are penultima valoarea calculata cea mai
+exacta asa ca doar pe aceasta o voi considera.
+
+3. PR_Inv
+	Ma folosesc de metoda Gram-Schmidt optimizat pentru a calcula termenii
+Q si R ai factorizarii matricei date ca parametru.
+
+	Apoi in ecuatia A * A^-1 = I scriu A drept Q*R => Q*R * A^-1 = I. Pentru
+a rezolva sistemul il impart in mai multe sisteme de tipul Ax = b(x si b
+vectori). Astfel iau pe rand fiecare coloana a lui A^-1 cu fiecare coloana a
+lui I(creat cu functia built-in eye) si rezolv sistemul:
+
+						Q*R * A^-1(:, i) = I(:, i), i coloana coresp matricii
+
+	Inmultesc la stanga cu Q'(Q * Q' = I):
+
+						R * A^-1(:, i) = Q' * I(:, i)
+
+	Din Q' * I(:, i) va rezulta un vector coloana si sistemul va fi de tipul
+Ax = b, unde A = R, x = A^-1(:, i) si b = Q' * I(:, i).
+
+	Sistemul se rezolva cu SST (A este superior triunghiulara in acest caz):
+
+	A^-1(:, i) = SST(R, Q' * I(:, i))
+
+4. SST
+	Varianta folosita pentru matrici patratice, doar ca daca primeste o matrice
+nepatratica taie din linii pana devine nepatratica, o transforma intr-o matrice
+de dimensiuni cxc (c numarul de coloane al matricii dat ca parametru). In cazul
+nostru vor fi mereu mai multe linii decat coloane asa ca nu pierdem necunoscute.
+
+5. Algebraic
+	Calculez M-ul cu functia auxiliara CalculM. Creez coloana de 1 cu functia
+built-in ones ce functioneaza asemeni functiei zeros.
+	
+	Calculez folosind formula pentru t->inf (n-avem nevoie de R_prev):
+
+	R(inf) = (I - d * M)^-1 * ((1 - d) / N) * 1v, unde N este reprezentat de
+numarul de noduri si 1v este coloana de 1 creata anterior
+
+	Inversa lui (I - d * M) o calculez folosind functia PR_Inv descrisa
+anterior. In acest caz matricea are o forma oarecare(putin sparse) si nu este
+recomandat sa ii fie calculata inversa in mod conventional.
+
+6. Apartenenta
+	Functia generala de apartenenta este:
+
+			0, x apartine [0 val1) = u1(x)
+	u(x) =	a * x + b, x apartine [val1 val2] = u2(x)
+			1, x apartine (val2 1] = u3(x)
+
+	Functia pentru cazul in care x apartine [val1 val2] trebuie sa fie continua
+trebuie sa aiba limitele la stanga si dreapta ale lui val1, respectiv val2
+egale. Pentru ca asta sa se intample trebuie ca u1(val1) = u2(val1) si
+u2(val2) = u3(val2), de unde rezulta urmatorul sistem format din 2 ecuatii:
+	
+	0 = a * (val1) + b  (1)
+	1 = a * (val2) + b  (2)
+	--------------------(-)        Scadem ecuatiile (2) - (1) => se simplifica b
+
+	1 = a * (val2 - val1) => a = 1 / (val2 - val1)
+
+	Am aflat a-ul pe care il putem introduce in oricare ecuatii pentru a afla
+b. Il vom introduce in ecuatia (1):
+
+	0 = a * (val1) + b => b = (-a) * val1 = -val1 / (val2 - val1)
+
+	Ecuatia generala rezultata va fi:
+
+			0, x apartine [0 val1)
+	u(x) =	(x - val1) / (val2 - val1), x apartine [val1 val2]
+			1, x apartine (val2 1]
+
+	Stiind functia doar ne vom folosi de niste if-uri pentru a determina
+rezultatul ecuatiei u(x) in functie de intervalul in care se incadreaza
+x-ul primit ca parametru(se precizeaza 0 <= x <= 1).
+
+7. PageRank
+	Din functia Iterative aflu vectorul R1(R calculat prin met iterativa) si
+de asemenea intorc numarul de noduri pe care il voi folosi in functia PageRank
+alaturi de pointerul la fisier <file> care ultima data in iterative a fost
+folosit la construirea matricei de adiacenta, respectiv diagonala pentru
+ultimul nod aflat pe ultima linie => pointerul se afla la sfarsitul linie
+inainte de newline, fix pe liniile urmatoare se afla val1 si val2. Din functia
+algebraic returnez vectorul R2 calculat prin metoda algebrica.
+
+	Deschid un fisier de iesire cu numele echivalent cu cel al fisierul de
+intrare, doar ca are sufixul .out pe care il concatenez folosind functia
+strcat(). Introduc numarul de noduri in fisierul de out folosindu-ma de functia 
+fprintf(), trec pe linia urmatoare cu un newline si las o linie spatiu cu al 
+doilea. Cand fprintf() primeste un vector coloana ca parametru va introduce
+in fisier acest vector element cu element, aplicand formatul primit ca
+parametru fiecarui element. Pentru a pastra forma de vector coloana am pus
+un newline la sfarsit de fiecare element. Am aplicat aceasta metoda pentru
+introducerea in fisier a vectorilor R1 si R2.
+
+	Pointerul <file> se afla la finalul ultimei linii din listele de vecini.
+Pentru a trece la linia urmatoare ma folosesc de fgetl() care "consuma" tot
+restul liniei. Pe linia urmatoare se afla valoarea 1 pe care o citesc in
+vectorul val1, aplic aceeasi pasi pentru val2.
+
+	Ma folosesc de functia sort() pentru a sorta in sens descrescator vectorul
+R2. Pentru ca functia sa faca asta trebuie sa introduc "descend" drept al doilea
+parametru, acesta precizand sensul sortarii. La iesire functia sort scoate
+vectorul sortat pe primul loc si un vector ce tine cont de pozitiile trecute
+ale elementelor din vector(de indexi).
+
+	Pentru fiecare nod din noul vector sortat calculez apartanenta pagerank-ului
+acestuia in intervalele impuse de functia u(x). Introduc in fisier pe fiecare 
+linie pozitia din vectorul sortat prelucrata, numarul nodului ce reprezenta 
+vechea pozitie din vector si rezultat functiei u(x) pentru acel nod.
+
+	Datorita modului in care sorteaza functia sort() nu se vor schimba pozitiile
+intre elementele egale, astfel pe ultimele doua randuri din graf1.out am:
+
+	6 6 0.125242
+	7 7 0.125242
+
+	In loc de rezultatul din exemplele temei:
+
+	6 7 0.125242
+	7 6 0.125242
+
+!PRECIZARE: Algoritmii pentru Gram-Schmidt optimizat si SST au fost cei folositi 
+in cadrul laboratorului domnului Clementin Cercel cu mici modificari.

@@ -1,0 +1,35 @@
+In aceasta saptamana vom face laboratorul 4 de pe Moodle, cel de eliminare gaussiana.
+Pentru laboratorul din aceasta saptamana, aveti de rezolvat urmatoarele exercitii:
+1. Scrieti algoritmii G, G_Sistem, GPP, GPPS (la GPPS puteti folosi oricare din cele 2 formule pentru a calcula pe s(i)) si GPT
+Hint pentru G_Sistem:
+x=G_Sistem(A,b) %rezolva sistemul Ax=b folosind eliminare gaussiana, unde A este matrice patratica
+Pasii sunt: apelati mai intai  [A b] = G(A,b); 2) apoi apelati SST(A,b), unde A si b sunt returnate de apelul A,b
+2. Scrieti algoritmii eficienti pentru G si GPP atunci cand matricea A este superior Hessenberg
+hint pentru G: for i=p+1:n se modifica in i=p+1
+hint pentru GPP: Sunt 2 modificari de facut 1) aceeasi modificare ca la G 2) maximul se calculeaza doar intre 2 elemente la fiecare pas
+3. Scrieti algoritmul pentru Problema 3 de la Probleme Propuse din Laboratorul 4
+(hint: adaptati formulele de la Algoritmul Thomas pentru matricea de la Problema 3 de la Probleme Propuse)
+    n = length(d);
+    % transform pe a astfel incat sa aiba n elemente, cu primele doua elemente 0
+     a = [0 0 a];
+    % Operariile la limita;
+    c(1) = c(1) / b(1);
+    c(2) = c(2) / b(2);
+    d(1) = d(1) / b(1);
+    d(2) = d(2) / b(2);
+    % calculul coeficientilor pe caz general.
+    for i = 3 : n-2
+        temp = b(i) - a(i) * c(i-2);
+        % mai aveti 2 instructiuni de scris
+    end
+    d(n-1) = (d(n-1) - a(n-1) * d(n-3)) / (b(n-1) - a(n-1) * c(n-3));
+    d(n) = % completati voi aici
+    % Substitutia inapoi pentru rezolvarea sistemului de ecuatii
+    x(n) = d(n);
+    x(n-1) = d(n-1);
+    for i = n-2:-1:1
+        x(i) = % completati voi aici;
+    end
+
+x=G_Sistem(A,b) %rezolva sistemul Ax=b folosind eliminare gaussiana, unde A este matrice patratica
+Pasii sunt: apelati mai intai  [A b] = G(A,b); 2) apoi apelati SST(A,b), unde A si b sunt returnate de apelul G(A,b

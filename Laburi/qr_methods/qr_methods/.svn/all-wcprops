@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/lmn/!svn/ver/3/linear_systems/qr_methods
+END
+__test_givens.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/lmn/!svn/ver/10/linear_systems/qr_methods/__test_givens.m
+END
+givens.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/lmn/!svn/ver/10/linear_systems/qr_methods/givens.m
+END
