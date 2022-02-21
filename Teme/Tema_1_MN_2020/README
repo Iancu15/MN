@@ -40,7 +40,7 @@ ce se afla un rand mai jos si elementul urmator acestuia.
 stanga respecta ordinea in acest sens cu restul nodurilor de la mijloc, insa
 aceasta are doar 5 legaturi(una cu exteriorul), asa ca o setez la 5 dupa for.
 
-	b)Extremitatea dreapta are tot 5 legaturi, setez in valoarea 5 pe pozitia
+	b)Extremitatea dreapta are tot 5 legaturi, setez valoarea 5 pe pozitia
 element,element. Singura diferenta fata de restul nodurilor de pe aceeasi linie
 este ca el nu mai are un nod imediat urmator.
 
@@ -137,7 +137,7 @@ cluster, restul de coloane sunt initializate 0 si raman 0.
 
 3. Calcularea normelor punctelor relativ la centroizi.
 	Pentru fiecare centroid calculez vectorizat diferenta dintre coordonatele
-punctele si coordonatele centroidului. Primul pas in calcularea distantei
+punctelor si coordonatele centroidului. Primul pas in calcularea distantei
 euclediene.
 	
 	Apoi calculez norma diferentelor de coordonate ce imi va da practic distanta
@@ -151,7 +151,7 @@ norma TRANSPUSEI pentru a afla norma pe fiecare linie (fiecare linie din diff
 avand diferenta dintre coordonatele punctelor si cele ale centroizilor), apoi
 transpun rezultatul pentru al pune drept coloana in norms la coloana
 corespondenta centroidului(de la 1 la NC).
-	UPDATE: n-am mai folosit vecnorm pentru vmchecker-ul ruleaza pe 4.2.2,
+	UPDATE: n-am mai folosit vecnorm pentru ca vmchecker-ul ruleaza pe 4.2.2,
 versiune ce nu are vecnorm. Asa ca am calculat de mana norma exact pe acelasi
 principiu ca la vecnorm.
 
@@ -171,7 +171,7 @@ index-ul centroid-ului catre care punctul are distanta cea mai mica.
 
 5. Introducerea elementelor in cluster in functie de cel mai apropiat centroid.
 	Ma folosesc de indexii minim calculati anterior pentru a pune punctul in
-cluster-ul caruia ii corespunde. Linia este in care fac acest lucru nu este
+cluster-ul caruia ii corespunde. Linia in care fac acest lucru nu este
 atat de usor de inteles asa ca o sa o explic pe bucati.
 
 a)++clusters(1, 1 + m*c) + 1
@@ -206,7 +206,7 @@ in loc de m este i.
 
 B.compute_cost_pc
 
-	Este cod reciclat de la compute_cost_pc. Calcularea distantei euclidiene
+	Este cod reciclat de la clustering_pc. Calcularea distantei euclidiene
 se face exact cum este precizat in clustering_pc la pasul 3(din README).
 
 	De aceasta data nu mai ma folosesc de indexii minimi, ci ma folosesc de
@@ -314,7 +314,7 @@ si trecut. Cum imaginile sunt salvate drept numere, presupun ca orice alt fisier
 prezent va fi format din litere si se va afla la finalul folder-ului. Parcurg 
 folderul de la final pentru a scapa de _DS_STORE, results si orice alt fisier 
 care nu este o imagine. La parcugere adaug 4 litere la inceput, pentru ca
-fisierul sa aiba cel putin 4 litere => nu da out of bound la end - 3.
+fisierul sa aiba cel putin 4 litere => nu da out of bounds la end - 3.
 
 	Verific daca sunt in folderul cu pisici in functie de numele directorului.
 Daca directorul se numeste "cats" inseamna ca e cel cu pisici si vectorul y
