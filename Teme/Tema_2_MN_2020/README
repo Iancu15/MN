@@ -37,19 +37,19 @@ astfel vectorul pentru timpul t = 0.
 	R(t + 1) = d * M * R + 	((1 - d) / N) * 1v, unde N este numarul de noduri
 si 1v un vector coloana plin de 1 creat cu functia built-in ones().
 
-	Am observat ca metoda iterativa are penultima valoarea calculata cea mai
+	Am observat ca metoda iterativa are penultima valoare calculata cea mai
 exacta asa ca doar pe aceasta o voi considera.
 
 3. PR_Inv
 	Ma folosesc de metoda Gram-Schmidt optimizat pentru a calcula termenii
 Q si R ai factorizarii matricei date ca parametru.
 
-	Apoi in ecuatia A * A^-1 = I scriu A drept Q*R => Q*R * A^-1 = I. Pentru
+	Apoi in ecuatia A * A^-1 = I scriu A drept Q * R => Q * R * A^-1 = I. Pentru
 a rezolva sistemul il impart in mai multe sisteme de tipul Ax = b(x si b
 vectori). Astfel iau pe rand fiecare coloana a lui A^-1 cu fiecare coloana a
 lui I(creat cu functia built-in eye) si rezolv sistemul:
 
-						Q*R * A^-1(:, i) = I(:, i), i coloana coresp matricii
+						Q * R * A^-1(:, i) = I(:, i), i coloana coresp matricii
 
 	Inmultesc la stanga cu Q'(Q * Q' = I):
 
@@ -58,13 +58,13 @@ lui I(creat cu functia built-in eye) si rezolv sistemul:
 	Din Q' * I(:, i) va rezulta un vector coloana si sistemul va fi de tipul
 Ax = b, unde A = R, x = A^-1(:, i) si b = Q' * I(:, i).
 
-	Sistemul se rezolva cu SST (A este superior triunghiulara in acest caz):
+	Sistemul se rezolva cu SST (A = R este superior triunghiulara in acest caz):
 
 	A^-1(:, i) = SST(R, Q' * I(:, i))
 
 4. SST
 	Varianta folosita pentru matrici patratice, doar ca daca primeste o matrice
-nepatratica taie din linii pana devine nepatratica, o transforma intr-o matrice
+nepatratica taie din linii pana devine patratica, o transforma intr-o matrice
 de dimensiuni cxc (c numarul de coloane al matricii dat ca parametru). In cazul
 nostru vor fi mereu mai multe linii decat coloane asa ca nu pierdem necunoscute.
 
@@ -115,7 +115,7 @@ rezultatul ecuatiei u(x) in functie de intervalul in care se incadreaza
 x-ul primit ca parametru(se precizeaza 0 <= x <= 1).
 
 7. PageRank
-	Din functia Iterative aflu vectorul R1(R calculat prin met iterativa) si
+	Din functia Iterative aflu vectorul R1(R calculat prin metoda iterativa) si
 de asemenea intorc numarul de noduri pe care il voi folosi in functia PageRank
 alaturi de pointerul la fisier <file> care ultima data in iterative a fost
 folosit la construirea matricei de adiacenta, respectiv diagonala pentru
@@ -147,7 +147,7 @@ ale elementelor din vector(de indexi).
 	Pentru fiecare nod din noul vector sortat calculez apartanenta pagerank-ului
 acestuia in intervalele impuse de functia u(x). Introduc in fisier pe fiecare 
 linie pozitia din vectorul sortat prelucrata, numarul nodului ce reprezenta 
-vechea pozitie din vector si rezultat functiei u(x) pentru acel nod.
+vechea pozitie din vector si rezultatul functiei u(x) pentru acel nod.
 
 	Datorita modului in care sorteaza functia sort() nu se vor schimba pozitiile
 intre elementele egale, astfel pe ultimele doua randuri din graf1.out am:
